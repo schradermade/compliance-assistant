@@ -48,8 +48,8 @@ flowchart LR
 
   admin -->|Upload docs| api
   api --> r2
-  api --> queue
-  queue --> ingest
+  api -. enqueue .-> queue
+  queue -. consume .-> ingest
   ingest --> r2
   ingest --> llm
   ingest --> vec
@@ -59,6 +59,27 @@ flowchart LR
   vec --> api
   d1 --> pages
   d1 --> api
+
+  subgraph legend[Legend]
+    l1[Cloudflare Managed]
+    l2[External Provider]
+    l3[Human Actor]
+    l4[Cloudflare Security Control]
+  end
+
+  classDef cf fill:#FFF4E5,stroke:#F97316,stroke-width:1.5px,color:#7C2D12;
+  classDef cfSec fill:#FFE8D6,stroke:#EA580C,stroke-width:2.5px,color:#7C2D12;
+  classDef ext fill:#EEF2FF,stroke:#4F46E5,stroke-width:1.5px,color:#1E1B4B;
+  classDef human fill:#F3F4F6,stroke:#6B7280,stroke-width:1.5px,color:#111827;
+
+  class api,pages,ingest,queue,r2,vec,d1,kv,logs cf;
+  class access,do cfSec;
+  class idp,llm ext;
+  class user,admin human;
+  class l1 cf;
+  class l2 ext;
+  class l3 human;
+  class l4 cfSec;
 ```
 
 ## Request Flow (Query)
