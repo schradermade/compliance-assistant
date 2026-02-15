@@ -106,6 +106,15 @@ flowchart LR
 4. Ingest worker chunks documents, generates embeddings, and updates Vectorize.
 5. Ingest worker records status and audit trails in D1.
 
+## Provisioning Notes
+
+- Cloudflare resource inventory (KV, D1, R2, Queues, Vectorize) is tracked in:
+  - `docs/cloudflare-resources.md`
+- Secrets setup commands are tracked in:
+  - `docs/cloudflare-secrets.md`
+- API worker Durable Object (`RateLimiter`) is configured with migration tag `v1` in:
+  - `apps/api-worker/wrangler.toml`
+
 ## API Contracts
 
 All endpoints are tenant-scoped and require authenticated identity context from Cloudflare Access headers.
