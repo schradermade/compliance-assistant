@@ -4,6 +4,13 @@ A 30-day build plan for a fully functioning multi-tenant AI compliance assistant
 
 ![Cloudflare System Architecture](infra/diagrams/cloudflare-system.svg)
 
+## Governance
+
+Development standards and decision records for this project:
+- Engineering Playbook: `docs/engineering-playbook.md`
+- Architecture Decision Records (ADRs): `docs/adrs/`
+- PR Checklist: `docs/checklists/pr-checklist.md`
+
 ## Goal
 
 Ship a working system that can:
