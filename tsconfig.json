@@ -9,6 +9,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "apps/**/*.ts"
+    "apps/**/*.ts",
+    "packages/**/*.ts"
   ]
 }

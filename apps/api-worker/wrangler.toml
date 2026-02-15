@@ -1,0 +1,88 @@
+name = "compliance-api-worker"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+workers_dev = true
+
+[vars]
+ENV_NAME = "dev"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "compliance-docs-dev"
+
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = "REPLACE_WITH_DEV_KV_ID"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "compliance-dev"
+database_id = "REPLACE_WITH_DEV_D1_ID"
+
+[[vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "compliance-dev-index"
+
+[[queues.producers]]
+binding = "INGEST_QUEUE"
+queue = "compliance-ingest-dev"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER_DO"
+class_name = "RateLimiter"
+
+[env.staging.vars]
+ENV_NAME = "staging"
+
+[[env.staging.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "compliance-docs-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "CACHE_KV"
+id = "REPLACE_WITH_STAGING_KV_ID"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "compliance-staging"
+database_id = "REPLACE_WITH_STAGING_D1_ID"
+
+[[env.staging.vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "compliance-staging-index"
+
+[[env.staging.queues.producers]]
+binding = "INGEST_QUEUE"
+queue = "compliance-ingest-staging"
+
+[[env.staging.durable_objects.bindings]]
+name = "RATE_LIMITER_DO"
+class_name = "RateLimiter"
+
+[env.prod.vars]
+ENV_NAME = "prod"
+
+[[env.prod.r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "compliance-docs-prod"
+
+[[env.prod.kv_namespaces]]
+binding = "CACHE_KV"
+id = "REPLACE_WITH_PROD_KV_ID"
+
+[[env.prod.d1_databases]]
+binding = "DB"
+database_name = "compliance-prod"
+database_id = "REPLACE_WITH_PROD_D1_ID"
+
+[[env.prod.vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "compliance-prod-index"
+
+[[env.prod.queues.producers]]
+binding = "INGEST_QUEUE"
+queue = "compliance-ingest-prod"
+
+[[env.prod.durable_objects.bindings]]
+name = "RATE_LIMITER_DO"
+class_name = "RateLimiter"
