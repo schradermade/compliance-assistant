@@ -1,0 +1,28 @@
+name = "compliance-queue-consumer"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+workers_dev = true
+
+[vars]
+ENV_NAME = "dev"
+
+[[queues.consumers]]
+queue = "compliance-ingest-dev"
+max_batch_size = 10
+max_batch_timeout = 5
+
+[env.staging.vars]
+ENV_NAME = "staging"
+
+[[env.staging.queues.consumers]]
+queue = "compliance-ingest-staging"
+max_batch_size = 10
+max_batch_timeout = 5
+
+[env.prod.vars]
+ENV_NAME = "prod"
+
+[[env.prod.queues.consumers]]
+queue = "compliance-ingest-prod"
+max_batch_size = 20
+max_batch_timeout = 5

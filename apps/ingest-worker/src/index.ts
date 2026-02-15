@@ -1,0 +1,7 @@
+export interface Env {}
+
+export default {
+  async fetch(): Promise<Response> {
+    return Response.json({ status: "ok", service: "ingest-worker" });
+  },
+};
