@@ -130,6 +130,10 @@ All endpoints are tenant-scoped and require authenticated identity context from 
 Purpose:
 - ask a grounded question against tenant documents.
 
+Current implementation status:
+- route and request validation are implemented.
+- response payload is currently a development stub while retrieval/model orchestration is being completed.
+
 Request:
 
 ```json
