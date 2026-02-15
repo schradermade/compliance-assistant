@@ -1,6 +1,6 @@
 # Compliance Assistant (Cloudflare Native)
 
-A 30-day build plan for a hiring portfolio demo that is also a fully functioning multi-tenant AI compliance assistant, built on Cloudflare.
+A 30-day build plan for a fully functioning multi-tenant AI compliance assistant, built on Cloudflare for client delivery.
 
 ## Goal
 
@@ -223,13 +223,13 @@ Build:
 DoD:
 - eval command outputs score summary and failure cases
 
-#### Day 7: MVP Demo Gate
+#### Day 7: MVP Validation Gate
 Build:
 - stability fixes
 - baseline metrics capture
 
 DoD:
-- live demo works: upload -> query -> grounded answer
+- end-to-end validation works: upload -> query -> grounded answer
 
 ### Week 2: Reliability, Observability, and Security Baseline
 
@@ -361,15 +361,15 @@ Deliverables:
 DoD:
 - audit trail includes login, role change, and admin actions
 
-### Week 4: Optimization and Hiring Narrative
+### Week 4: Optimization and Delivery Readiness
 
-#### Day 22: Technical Walkthrough Video
+#### Day 22: Technical Walkthrough
 Build:
 - architecture walkthrough video
 - explain Cloudflare service tradeoffs and limits
 
 DoD:
-- 10-15 minute coherent technical walkthrough
+- 10-15 minute coherent technical walkthrough recording
 
 #### Day 23: Case Study
 Build:
@@ -407,12 +407,12 @@ Build:
 DoD:
 - guardrail regression suite passes target threshold
 
-#### Day 27: Interview Pack
+#### Day 27: Stakeholder Handoff Pack
 Build:
-- concise interview answers for architecture, IAM, scaling, failures
+- concise stakeholder-facing summaries for architecture, IAM, scaling, and failures
 
 Deliverables:
-- `docs/interview_prep.md`
+- `docs/stakeholder_handoff.md`
 
 DoD:
 - explain each tradeoff in <= 5 minutes
@@ -421,14 +421,14 @@ DoD:
 Build:
 - final setup docs
 - architecture/deployment diagrams
-- screenshots and demo links
+- screenshots and validation evidence links
 
 DoD:
 - new user can deploy dev stack from clean clone
 
 #### Day 29: External Review Pass
 Build:
-- hiring-manager-style self-review
+- client-readiness self-review
 - cleanup of naming, docs, and scripts
 
 DoD:
@@ -437,18 +437,18 @@ DoD:
 #### Day 30: Publish
 Build:
 - final repo release
-- portfolio summary page
-- launch post with demo and architecture links
+- client handoff summary page
+- release notes with architecture and validation links
 
 DoD:
-- all links and demos are publicly accessible and working
+- all links and validation artifacts are accessible and working
 
 ## Weekly Exit Criteria
 
 - End Week 1: working RAG path on Workers with citations
 - End Week 2: reliable async ingest + observability + baseline guardrails
 - End Week 3: enterprise IAM/SSO + RBAC + tenant hardening complete
-- End Week 4: optimized, documented, interview-ready system published
+- End Week 4: optimized, documented, client-ready system published
 
 ## Initial Commands
 
@@ -459,6 +459,6 @@ pnpm --filter @apps/api-worker dev
 pnpm --filter @apps/admin-pages dev
 ```
 
-## Portfolio Outcome
+## Project Outcome
 
 By Day 30, this repo should prove you can ship a real Cloudflare-native AI platform with enterprise identity controls, operational rigor, and clear engineering tradeoff communication.
