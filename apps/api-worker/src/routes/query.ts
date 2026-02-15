@@ -1,11 +1,18 @@
 import {
   type QueryResponse,
   queryRequestSchema,
-} from "../../../../packages/shared/src";
-import { createRequestId, jsonError, validationErrorResponse } from "../lib/http";
-import type { Env } from "../index";
+} from '../../../../packages/shared/src';
+import {
+  createRequestId,
+  jsonError,
+  validationErrorResponse,
+} from '../lib/http';
+import type { Env } from '../index';
 
-export async function handleQuery(request: Request, _env: Env): Promise<Response> {
+export async function handleQuery(
+  request: Request,
+  _env: Env,
+): Promise<Response> {
   const requestId = createRequestId();
 
   let rawBody: unknown;
@@ -14,8 +21,8 @@ export async function handleQuery(request: Request, _env: Env): Promise<Response
   } catch {
     return jsonError(
       requestId,
-      "invalid_json",
-      "Request body must be valid JSON",
+      'invalid_json',
+      'Request body must be valid JSON',
       400,
     );
   }
@@ -23,7 +30,7 @@ export async function handleQuery(request: Request, _env: Env): Promise<Response
   const parsed = queryRequestSchema.safeParse(rawBody);
   if (!parsed.success) {
     const tenant =
-      rawBody && typeof rawBody === "object"
+      rawBody && typeof rawBody === 'object'
         ? (rawBody as { tenantId?: string }).tenantId
         : undefined;
     return validationErrorResponse(requestId, tenant, parsed.error);
@@ -33,7 +40,7 @@ export async function handleQuery(request: Request, _env: Env): Promise<Response
   const response: QueryResponse = {
     requestId,
     tenantId: body.tenantId,
-    answer: "Stub response: query accepted and validated.",
+    answer: 'Stub response: query accepted & validated.',
     citations: [],
     usage: {
       promptTokens: 0,
