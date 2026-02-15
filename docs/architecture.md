@@ -43,7 +43,7 @@ flowchart LR
   api --> kv
   api --> d1
   api --> vec
-  api --> llm
+  api <--> llm
   api --> logs
 
   admin -->|Upload docs| api
@@ -51,13 +51,12 @@ flowchart LR
   api -. enqueue .-> queue
   queue -. consume .-> ingest
   ingest --> r2
-  ingest --> llm
+  ingest <--> llm
   ingest --> vec
   ingest --> d1
   ingest --> logs
 
   vec --> api
-  d1 --> pages
   d1 --> api
 
   subgraph legend[Legend]
