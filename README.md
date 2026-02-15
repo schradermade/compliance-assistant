@@ -170,7 +170,7 @@ Build:
 
 Deliverables:
 - `docs/architecture.md`
-- `infra/diagrams/cloudflare-system.png`
+- `infra/diagrams/cloudflare-system.mmd` (render to `.png` or `.svg` as needed)
 
 DoD:
 - final service map locked

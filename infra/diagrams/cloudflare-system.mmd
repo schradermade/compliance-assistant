@@ -1,0 +1,45 @@
+flowchart LR
+  user[End User]
+  admin[Admin User]
+  idp[Enterprise IdP<br/>OIDC/SAML]
+  access[Cloudflare Access]
+  pages[Cloudflare Pages<br/>Admin Dashboard]
+  api[API Worker<br/>Query + Metrics + AuthZ]
+  queue[Cloudflare Queues]
+  ingest[Ingest Worker / Consumer]
+  r2[(R2<br/>Documents)]
+  vec[(Vectorize<br/>Embeddings Index)]
+  d1[(D1<br/>Tenant + Audit + Metadata)]
+  kv[(KV<br/>Cache + Flags)]
+  do[(Durable Objects<br/>Rate Limiter)]
+  llm[Model Provider<br/>Chat + Embeddings]
+  logs[Logs/Analytics]
+
+  user --> access
+  admin --> access
+  access --> idp
+  access --> pages
+  access --> api
+
+  pages --> api
+
+  api --> do
+  api --> kv
+  api --> d1
+  api --> vec
+  api --> llm
+  api --> logs
+
+  admin -->|Upload docs| api
+  api --> r2
+  api --> queue
+  queue --> ingest
+  ingest --> r2
+  ingest --> llm
+  ingest --> vec
+  ingest --> d1
+  ingest --> logs
+
+  vec --> api
+  d1 --> pages
+  d1 --> api
