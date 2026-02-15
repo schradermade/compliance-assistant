@@ -13,7 +13,7 @@ bucket_name = "compliance-docs-dev"
 [[d1_databases]]
 binding = "DB"
 database_name = "compliance-dev"
-database_id = "REPLACE_WITH_DEV_D1_ID"
+database_id = "11f10559-222b-493c-bb74-a28b247cf273"
 
 [[vectorize]]
 binding = "VECTORIZE_INDEX"
@@ -34,7 +34,7 @@ bucket_name = "compliance-docs-staging"
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "compliance-staging"
-database_id = "REPLACE_WITH_STAGING_D1_ID"
+database_id = "0973e44e-1cad-4861-a552-3c07063b6537"
 
 [[env.staging.vectorize]]
 binding = "VECTORIZE_INDEX"
@@ -55,7 +55,7 @@ bucket_name = "compliance-docs-prod"
 [[env.prod.d1_databases]]
 binding = "DB"
 database_name = "compliance-prod"
-database_id = "REPLACE_WITH_PROD_D1_ID"
+database_id = "868eb001-dea3-4b7a-86ff-f5a797f8d7db"
 
 [[env.prod.vectorize]]
 binding = "VECTORIZE_INDEX"

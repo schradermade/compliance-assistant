@@ -12,12 +12,12 @@ bucket_name = "compliance-docs-dev"
 
 [[kv_namespaces]]
 binding = "CACHE_KV"
-id = "REPLACE_WITH_DEV_KV_ID"
+id = "307a6a51500c44549d6eaec2a1a81188"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "compliance-dev"
-database_id = "REPLACE_WITH_DEV_D1_ID"
+database_id = "11f10559-222b-493c-bb74-a28b247cf273"
 
 [[vectorize]]
 binding = "VECTORIZE_INDEX"
@@ -31,6 +31,10 @@ queue = "compliance-ingest-dev"
 name = "RATE_LIMITER_DO"
 class_name = "RateLimiter"
 
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RateLimiter"]
+
 [env.staging.vars]
 ENV_NAME = "staging"
 
@@ -40,12 +44,12 @@ bucket_name = "compliance-docs-staging"
 
 [[env.staging.kv_namespaces]]
 binding = "CACHE_KV"
-id = "REPLACE_WITH_STAGING_KV_ID"
+id = "f5ebdbf8d962494194fb3d84cb2a586b"
 
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "compliance-staging"
-database_id = "REPLACE_WITH_STAGING_D1_ID"
+database_id = "0973e44e-1cad-4861-a552-3c07063b6537"
 
 [[env.staging.vectorize]]
 binding = "VECTORIZE_INDEX"
@@ -68,12 +72,12 @@ bucket_name = "compliance-docs-prod"
 
 [[env.prod.kv_namespaces]]
 binding = "CACHE_KV"
-id = "REPLACE_WITH_PROD_KV_ID"
+id = "03da6132ed65466680651ac191dfaa4b"
 
 [[env.prod.d1_databases]]
 binding = "DB"
 database_name = "compliance-prod"
-database_id = "REPLACE_WITH_PROD_D1_ID"
+database_id = "868eb001-dea3-4b7a-86ff-f5a797f8d7db"
 
 [[env.prod.vectorize]]
 binding = "VECTORIZE_INDEX"
