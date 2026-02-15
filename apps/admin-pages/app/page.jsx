@@ -9,7 +9,8 @@ import { rangeOptions, tenantOptions } from "../lib/dashboard/options";
 import { buildDashboardViewModel } from "../lib/dashboard/view-model";
 
 export default async function DashboardPage({ searchParams }) {
-  const filters = normalizeDashboardFilters(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const filters = normalizeDashboardFilters(resolvedSearchParams);
   const dashboardData = await loadDashboardData(filters);
 
   const viewModel = buildDashboardViewModel({
