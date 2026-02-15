@@ -176,6 +176,14 @@ DoD:
 - final service map locked
 - data flow documented end-to-end
 
+Day 1 completion checklist:
+- [x] System diagram created using Workers, R2, Vectorize, D1, KV, and Queues
+- [x] API contracts defined for `/query`, `/ingest`, and `/metrics`
+- [x] Tenant and RBAC model documented
+- [x] Deliverable present: `docs/architecture.md`
+- [x] Deliverable present: `infra/diagrams/cloudflare-system.mmd`
+- [x] Rendered diagram available: `infra/diagrams/cloudflare-system.svg`
+
 #### Day 2: Monorepo + Wrangler Bootstrap
 Build:
 - app scaffolds for `api-worker`, `ingest-worker`, `queue-consumer`, `admin-pages`

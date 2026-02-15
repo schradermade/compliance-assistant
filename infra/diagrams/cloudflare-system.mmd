@@ -45,22 +45,30 @@ flowchart LR
   d1 --> api
 
   subgraph legend[Legend]
-    l1[Cloudflare Managed]
-    l2[External Provider]
-    l3[Human Actor]
-    l4[Cloudflare Security Control]
+    l1[Users]
+    l2[Identity]
+    l3[Compute]
+    l4[Data]
+    l5[AI]
+    l6[Observability]
   end
 
-  classDef cf fill:#FFF4E5,stroke:#F97316,stroke-width:1.5px,color:#7C2D12;
-  classDef cfSec fill:#FFE8D6,stroke:#EA580C,stroke-width:2.5px,color:#7C2D12;
-  classDef ext fill:#EEF2FF,stroke:#4F46E5,stroke-width:1.5px,color:#1E1B4B;
-  classDef human fill:#F3F4F6,stroke:#6B7280,stroke-width:1.5px,color:#111827;
+  classDef users fill:#FFF4E5,stroke:#B65A00,stroke-width:1.5px,color:#2D1B00;
+  classDef identity fill:#E8F1FF,stroke:#2A66B7,stroke-width:1.5px,color:#0E2A57;
+  classDef compute fill:#E9FBEF,stroke:#1F7A3F,stroke-width:1.5px,color:#0D3B1E;
+  classDef data fill:#F2ECFF,stroke:#6B46C1,stroke-width:1.5px,color:#2E1760;
+  classDef ai fill:#FFECEE,stroke:#C53030,stroke-width:1.5px,color:#5C1A1A;
+  classDef ops fill:#F3F4F6,stroke:#4B5563,stroke-width:1.5px,color:#111827;
 
-  class api,pages,ingest,queue,r2,vec,d1,kv,logs cf;
-  class access,do cfSec;
-  class idp,llm ext;
-  class user,admin human;
-  class l1 cf;
-  class l2 ext;
-  class l3 human;
-  class l4 cfSec;
+  class user,admin users;
+  class idp,access identity;
+  class api,pages,ingest,queue,do compute;
+  class r2,vec,d1,kv data;
+  class llm ai;
+  class logs ops;
+  class l1 users;
+  class l2 identity;
+  class l3 compute;
+  class l4 data;
+  class l5 ai;
+  class l6 ops;
