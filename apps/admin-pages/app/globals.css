@@ -1,0 +1,278 @@
+:root {
+  --bg: #eef2f6;
+  --ink: #0f1722;
+  --ink-soft: #5b6674;
+  --line: #d7dee7;
+  --card: #ffffff;
+  --primary: #1f4f85;
+  --good: #1d8f62;
+  --warn: #bf6316;
+  --critical: #a52f39;
+  --shadow: 0 10px 24px rgba(16, 30, 52, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font-display), sans-serif;
+  background:
+    linear-gradient(180deg, #f6f8fb 0%, #eef2f6 65%, #e9eef3 100%);
+}
+
+.shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.3rem 1.2rem 2rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.95rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0.38rem 0 0;
+  font-size: clamp(1.45rem, 2.3vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.topbar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.23rem 0.65rem;
+  background: #fff;
+  font-size: 0.79rem;
+  color: #3a4655;
+}
+
+.tag.subtle {
+  background: #f7f9fc;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 0.95rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.68rem;
+  margin-bottom: 0.7rem;
+}
+
+.kpi-card .label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.kpi-row {
+  margin-top: 0.55rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.kpi-row h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+}
+
+.delta {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.delta.good {
+  color: var(--good);
+}
+
+.delta.warn {
+  color: var(--warn);
+}
+
+.delta.neutral {
+  color: var(--ink-soft);
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.68rem;
+  margin-bottom: 0.7rem;
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.66rem;
+}
+
+.card-head h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid #e9eef4;
+  font-size: 0.83rem;
+}
+
+th {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.78rem;
+}
+
+.badge {
+  text-transform: capitalize;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.14rem 0.52rem;
+  font-size: 0.75rem;
+}
+
+.badge.processing {
+  background: #ebf8f2;
+  border-color: #bae8d3;
+  color: #176f4b;
+}
+
+.badge.completed {
+  background: #eaf3ff;
+  border-color: #c8ddfb;
+  color: #215487;
+}
+
+.badge.queued {
+  background: #fff3e8;
+  border-color: #f3d3b2;
+  color: #975111;
+}
+
+.incident-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.incident-item {
+  border: 1px solid #e7edf5;
+  border-radius: 12px;
+  background: #fbfcfe;
+  padding: 0.56rem 0.62rem;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.incident-item p {
+  margin: 0;
+  font-size: 0.79rem;
+}
+
+.route {
+  color: var(--ink-soft);
+}
+
+.sev {
+  font-weight: 600;
+}
+
+.sev.low {
+  color: #23658b;
+}
+
+.sev.medium {
+  color: var(--warn);
+}
+
+.sev.high {
+  color: var(--critical);
+}
+
+.time {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    flex-direction: column;
+  }
+
+  .topbar-meta {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .shell {
+    padding: 0.92rem 0.68rem 1.2rem;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incident-item {
+    grid-template-columns: 1fr;
+  }
+}

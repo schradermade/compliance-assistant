@@ -10,7 +10,9 @@
     "preflight": "bash scripts/preflight.sh",
     "prepare": "husky",
     "policy:check": "bash scripts/check-policy.sh",
-    "ready": "bash scripts/ready.sh"
+    "ready": "bash scripts/ready.sh",
+    "dev:admin": "next dev apps/admin-pages -p 3000",
+    "build:admin": "next build apps/admin-pages"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +29,9 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "hono": "^4.11.9",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "zod": "^4.3.6"
   }
 }
