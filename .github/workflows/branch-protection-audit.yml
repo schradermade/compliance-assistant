@@ -1,0 +1,36 @@
+name: Branch Protection Audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 15 * * 1"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify main branch protection configuration
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = 'main';
+
+            try {
+              const { data } = await github.rest.repos.getBranchProtection({ owner, repo, branch });
+
+              const hasStatusChecks = !!data.required_status_checks;
+              const hasPRReviews = !!data.required_pull_request_reviews;
+
+              if (!hasStatusChecks || !hasPRReviews) {
+                core.setFailed('Branch protection is incomplete: require status checks and pull request reviews.');
+                return;
+              }
+
+              core.info('Branch protection audit passed.');
+            } catch (error) {
+              core.setFailed(`Unable to verify branch protection for ${owner}/${repo}@${branch}: ${error.message}`);
+            }

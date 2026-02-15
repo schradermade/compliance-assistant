@@ -1,0 +1,34 @@
+name: PR Checklist
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  checklist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR checklist items are checked
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+
+          required=(
+            "I completed `docs/checklists/pr-checklist.md`."
+            "Contract changes use zod schemas as source of truth."
+            "Tenant isolation and authorization impacts were reviewed."
+            "Logging/metrics/audit implications were addressed."
+            "Documentation and ADR updates were included where required."
+            "`pnpm run preflight` passed locally."
+          )
+
+          for item in "${required[@]}"; do
+            if ! printf '%s' "$PR_BODY" | grep -Fq -- "- [x] $item" && \
+               ! printf '%s' "$PR_BODY" | grep -Fq -- "- [X] $item"; then
+              echo "Missing checked PR checklist item: $item"
+              exit 1
+            fi
+          done
+
+          echo "PR checklist checks passed"

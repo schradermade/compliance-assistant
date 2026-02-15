@@ -10,4 +10,7 @@ pnpm exec tsc --noEmit
 echo "[preflight] Governance checks"
 bash scripts/check-governance.sh
 
+echo "[preflight] Policy checks"
+bash scripts/check-policy.sh
+
 echo "[preflight] OK"

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+changed="$(git diff --cached --name-only)"
+
+sensitive=0
+doc_or_adr=0
+
+while IFS= read -r file; do
+  [[ -z "$file" ]] && continue
+
+  case "$file" in
+    apps/api-worker/*|apps/ingest-worker/*|apps/queue-consumer/*|packages/shared/src/schemas/zod/*)
+      sensitive=1
+      ;;
+  esac
+
+  case "$file" in
+    docs/adrs/*|docs/architecture.md|docs/engineering-playbook.md)
+      doc_or_adr=1
+      ;;
+  esac
+done <<< "$changed"
+
+if [[ "$sensitive" == "1" && "$doc_or_adr" == "0" ]]; then
+  echo "[commit-msg][warning] Sensitive architecture files changed without ADR/docs update."
+  echo "[commit-msg][warning] Consider updating docs/adrs/* or docs/architecture.md."
+fi
+
+exit 0

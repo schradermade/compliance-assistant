@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "governance:check": "bash scripts/check-governance.sh",
     "preflight": "bash scripts/preflight.sh",
-    "prepare": "husky"
+    "prepare": "husky",
+    "policy:check": "bash scripts/check-policy.sh",
+    "ready": "bash scripts/ready.sh"
   },
   "keywords": [],
   "author": "",
