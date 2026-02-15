@@ -19,7 +19,7 @@ flowchart LR
   admin[Admin User]
   idp[Enterprise IdP<br/>OIDC/SAML]
   access[Cloudflare Access]
-  pages[Cloudflare Pages<br/>Admin Dashboard]
+  pages[Cloudflare Pages<br/>Next.js Admin Dashboard]
   api[API Worker<br/>Query + Metrics + AuthZ]
   queue[Cloudflare Queues]
   ingest[Ingest Worker / Consumer]

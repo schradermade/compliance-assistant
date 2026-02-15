@@ -59,6 +59,37 @@ h1 {
   gap: 0.45rem;
 }
 
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.24rem 0.18rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.filter select {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+}
+
+.apply-btn {
+  border: 1px solid #244f83;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+}
+
 .tag {
   display: inline-flex;
   align-items: center;

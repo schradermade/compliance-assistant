@@ -1,16 +1,72 @@
-const kpis = [
-  { label: "Requests (24h)", value: "3,281", delta: "+8.4%", tone: "good" },
-  { label: "p95 Latency", value: "3.72s", delta: "-0.43s", tone: "good" },
-  { label: "Error Rate", value: "0.70%", delta: "-0.20%", tone: "good" },
-  { label: "Cost / 24h", value: "$64.23", delta: "+$4.11", tone: "warn" },
-];
+const FALLBACK_METRICS = {
+  requests: 0,
+  successRate: 1,
+  p50LatencyMs: 0,
+  p95LatencyMs: 0,
+  promptTokens: 0,
+  completionTokens: 0,
+  estimatedCostUsd: 0,
+  cacheHitRate: 0,
+  throttleEvents: 0,
+};
 
-const tenants = [
-  { name: "tenant_abc", requests: 1290, latency: "3.2s", errors: "0.4%" },
-  { name: "tenant_delta", requests: 844, latency: "4.1s", errors: "0.9%" },
-  { name: "tenant_omega", requests: 612, latency: "3.8s", errors: "0.6%" },
-  { name: "tenant_prime", requests: 535, latency: "4.4s", errors: "1.1%" },
-];
+function rangeToWindow(range) {
+  const now = new Date();
+  const to = now.toISOString();
+  const fromDate = new Date(now);
+
+  if (range === "1h") {
+    fromDate.setHours(fromDate.getHours() - 1);
+  } else if (range === "7d") {
+    fromDate.setDate(fromDate.getDate() - 7);
+  } else {
+    fromDate.setDate(fromDate.getDate() - 1);
+  }
+
+  const granularity = range === "1h" ? "5m" : range === "7d" ? "1d" : "1h";
+  return { from: fromDate.toISOString(), to, granularity };
+}
+
+async function loadMetrics({ tenantId, range }) {
+  const baseUrl = process.env.API_WORKER_URL || "http://127.0.0.1:8787";
+  const url = new URL("/metrics", baseUrl);
+  const { from, to, granularity } = rangeToWindow(range);
+  url.searchParams.set("from", from);
+  url.searchParams.set("to", to);
+  url.searchParams.set("granularity", granularity);
+
+  if (tenantId) {
+    url.searchParams.set("tenantId", tenantId);
+  }
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return {
+        metrics: FALLBACK_METRICS,
+        scopeTenantId: "platform",
+        source: "fallback",
+      };
+    }
+
+    const body = await response.json();
+    return {
+      metrics: body.metrics ?? FALLBACK_METRICS,
+      scopeTenantId: body.scope?.tenantId ?? "platform",
+      source: "live",
+    };
+  } catch {
+    return {
+      metrics: FALLBACK_METRICS,
+      scopeTenantId: "platform",
+      source: "fallback",
+    };
+  }
+}
 
 const jobs = [
   { id: "job_8f2ca12", tenant: "tenant_abc", stage: "index", status: "processing", attempts: 1 },
@@ -31,7 +87,53 @@ function toneClass(tone) {
   return "neutral";
 }
 
-export default function DashboardPage() {
+function formatLatency(ms) {
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
+function formatRate(decimal) {
+  return `${(decimal * 100).toFixed(2)}%`;
+}
+
+function formatUsd(value) {
+  return `$${value.toFixed(2)}`;
+}
+
+export default async function DashboardPage({ searchParams }) {
+  const tenantParam = searchParams?.tenantId;
+  const rangeParam = searchParams?.range;
+  const selectedTenant = typeof tenantParam === "string" ? tenantParam : "";
+  const selectedRange =
+    rangeParam === "1h" || rangeParam === "24h" || rangeParam === "7d"
+      ? rangeParam
+      : "24h";
+  const { metrics, scopeTenantId, source } = await loadMetrics({
+    tenantId: selectedTenant,
+    range: selectedRange,
+  });
+  const errorRate = Math.max(0, 1 - metrics.successRate);
+  const tenantOptions = ["", "tenant_abc", "tenant_delta", "tenant_omega", "tenant_prime"];
+  const rangeOptions = [
+    { value: "1h", label: "Last 1 hour" },
+    { value: "24h", label: "Last 24 hours" },
+    { value: "7d", label: "Last 7 days" },
+  ];
+  const kpis = [
+    { label: "Requests (24h)", value: metrics.requests.toLocaleString(), delta: source === "live" ? "live" : "fallback", tone: source === "live" ? "good" : "neutral" },
+    { label: "p95 Latency", value: formatLatency(metrics.p95LatencyMs), delta: `p50 ${formatLatency(metrics.p50LatencyMs)}`, tone: metrics.p95LatencyMs <= 5000 ? "good" : "warn" },
+    { label: "Error Rate", value: formatRate(errorRate), delta: `success ${formatRate(metrics.successRate)}`, tone: errorRate <= 0.02 ? "good" : "warn" },
+    { label: "Cost / 24h", value: formatUsd(metrics.estimatedCostUsd), delta: `${metrics.promptTokens + metrics.completionTokens} tokens`, tone: "warn" },
+  ];
+
+  const tenants = [
+    {
+      name: scopeTenantId ?? "platform",
+      requests: metrics.requests,
+      latency: formatLatency(metrics.p95LatencyMs),
+      errors: formatRate(errorRate),
+    },
+  ];
+
   return (
     <main className="shell">
       <header className="topbar">
@@ -39,11 +141,34 @@ export default function DashboardPage() {
           <p className="eyebrow">Compliance Assistant</p>
           <h1>Service Operations</h1>
         </div>
-        <div className="topbar-meta">
+        <form className="topbar-meta" method="GET">
+          <label className="filter">
+            <span>Tenant</span>
+            <select name="tenantId" defaultValue={selectedTenant}>
+              {tenantOptions.map((tenant) => (
+                <option key={tenant || "platform"} value={tenant}>
+                  {tenant || "All tenants"}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="filter">
+            <span>Range</span>
+            <select name="range" defaultValue={selectedRange}>
+              {rangeOptions.map((range) => (
+                <option key={range.value} value={range.value}>
+                  {range.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className="apply-btn" type="submit">
+            Apply
+          </button>
           <span className="tag">Staging</span>
           <span className="tag">WNAM</span>
-          <span className="tag">Updated 14s ago</span>
-        </div>
+          <span className="tag">{source === "live" ? "Live metrics" : "Fallback metrics"}</span>
+        </form>
       </header>
 
       <section className="kpi-grid">
@@ -62,7 +187,9 @@ export default function DashboardPage() {
         <article className="card">
           <div className="card-head">
             <h3>Tenant Health</h3>
-            <span className="tag subtle">4 tenants</span>
+            <span className="tag subtle">
+              {selectedTenant ? "1 tenant" : "All tenants"}
+            </span>
           </div>
           <div className="table-scroll">
             <table>

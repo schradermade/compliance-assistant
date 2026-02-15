@@ -25,7 +25,7 @@ Ship a working system that can:
 
 Use these services as the default architecture:
 - Compute/API: `Cloudflare Workers`
-- Frontend/dashboard: `Cloudflare Pages`
+- Frontend/dashboard: `Next.js` admin app hosted on `Cloudflare Pages`
 - Document storage: `R2`
 - Vector search: `Vectorize`
 - Relational metadata: `D1`
@@ -45,7 +45,7 @@ Use these services as the default architecture:
 - Usage/cost/latency metrics
 - Reliability controls (timeouts/retries/fallback)
 - Guardrails and prompt-injection defense
-- Admin dashboard on Pages
+- Admin dashboard (Next.js on Cloudflare Pages)
 - Deployment and runbook docs
 
 ### Out of scope (30-day limit)
@@ -72,7 +72,61 @@ Use this when reporting outcomes:
 - Query mix: 70% normal, 20% multi-hop policy, 10% adversarial
 - Corpus: >= 200 chunks across >= 3 tenants
 
-## Wrangler Project Layout
+## Progress Tracking (As of February 15, 2026)
+
+- Day 1: `complete`
+  - Architecture and contracts documented in `docs/architecture.md`
+  - System diagram authored in `infra/diagrams/cloudflare-system.mmd` and rendered to `infra/diagrams/cloudflare-system.svg`
+- Day 2: `in progress`
+  - Worker/app scaffolds and monorepo layout are in place
+  - Environment-by-environment local `wrangler dev` verification still pending
+- Day 3: `in progress`
+  - `GET /health`, `POST /query`, `POST /ingest`, and `GET /metrics` routes exist in `apps/api-worker/src/index.ts`
+  - Zod-based request validation is implemented in route handlers
+  - Request middleware for structured tenant/request logging still pending
+- Day 19: `in progress` (today's focus)
+  - Next.js admin dashboard scaffold and polished UI are implemented in `apps/admin-pages/app/page.jsx`
+  - Dashboard now fetches live metrics from API Worker `/metrics` via `API_WORKER_URL`
+  - Tenant filter + time-range selector are implemented as URL-driven controls
+  - Remaining: connect additional widgets (ingestion jobs, incidents) to live API sources and complete Day 19 DoD verification
+
+## Current Implementation Snapshot
+
+```txt
+apps/
+  admin-pages/
+    app/
+      globals.css
+      layout.jsx
+      page.jsx
+    next.config.mjs
+    wrangler.toml
+  api/
+    src/
+      server.ts
+  api-worker/
+    src/
+      index.ts
+    wrangler.toml
+  ingest-worker/
+    src/
+      index.ts
+    wrangler.toml
+  queue-consumer/
+    src/
+      index.ts
+    wrangler.toml
+
+packages/
+  ai/
+    llm.ts
+    search.ts
+  shared/
+    src/
+      index.ts
+```
+
+## Target Wrangler Project Layout
 
 ```txt
 apps/
@@ -112,9 +166,11 @@ apps/
     wrangler.toml
 
   admin-pages/
-    src/
-      main.tsx
-      pages/
+    app/
+      layout.jsx
+      page.jsx
+      globals.css
+    next.config.mjs
     wrangler.toml
 
 packages/
@@ -135,15 +191,16 @@ infra/
 
 docs/
   architecture.md
-  cloudflare-deployment.md
-  security_review.md
-  production_readiness.md
-  case_study.md
+  cloudflare-resources.md
+  cloudflare-secrets.md
+  engineering-playbook.md
+  adrs/
+  checklists/
 
 evals/
-  dataset.jsonl
-  runner.ts
-  scoring.ts
+  dataset.jsonl        # planned
+  runner.ts            # planned
+  scoring.ts           # planned
 
 tests/
   unit/
@@ -349,7 +406,7 @@ Build:
 DoD:
 - abuse simulation throttles correctly without service failure
 
-#### Day 19: Admin Dashboard on Pages
+#### Day 19: Admin Dashboard (Next.js on Pages)
 Build:
 - usage, latency, cost, auth-failure, and security-event views
 - tenant filter and time-range selector
@@ -473,9 +530,9 @@ DoD:
 pnpm install
 pnpm dlx wrangler whoami
 pnpm --filter @apps/api-worker dev
-pnpm --filter @apps/admin-pages dev
+API_WORKER_URL=http://127.0.0.1:8787 pnpm run dev:admin
 ```
 
 ## Project Outcome
 
-By Day 30, this repo should prove you can ship a real Cloudflare-native AI platform with enterprise identity controls, operational rigor, and clear engineering tradeoff communication.
+By Day 30, this repo should deliver a real Cloudflare-native AI platform with enterprise identity controls, operational rigor, and clear engineering tradeoff communication.
