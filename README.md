@@ -536,3 +536,7 @@ API_WORKER_URL=http://127.0.0.1:8787 pnpm run dev:admin
 ## Project Outcome
 
 By Day 30, this repo should deliver a real Cloudflare-native AI platform with enterprise identity controls, operational rigor, and clear engineering tradeoff communication.
+
+## Pause Checkpoint (February 15, 2026)
+
+- Next up: replace `apps/api-worker/src/routes/query.ts` stub answer with real retrieval + model orchestration and grounded citations.

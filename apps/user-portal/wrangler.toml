@@ -1,0 +1,15 @@
+name = "compliance-user-portal"
+compatibility_date = "2026-02-15"
+pages_build_output_dir = "dist"
+
+[vars]
+ENV_NAME = "dev"
+API_BASE_URL = "https://compliance-api-worker.<account>.workers.dev"
+
+[env.staging.vars]
+ENV_NAME = "staging"
+API_BASE_URL = "https://staging-compliance-api.example.com"
+
+[env.prod.vars]
+ENV_NAME = "prod"
+API_BASE_URL = "https://api.example.com"

@@ -12,7 +12,9 @@
     "policy:check": "bash scripts/check-policy.sh",
     "ready": "bash scripts/ready.sh",
     "dev:admin": "next dev apps/admin-pages -p 3000",
-    "build:admin": "next build apps/admin-pages"
+    "build:admin": "next build apps/admin-pages",
+    "dev:user": "next dev apps/user-portal -p 3002",
+    "build:user": "next build apps/user-portal"
   },
   "keywords": [],
   "author": "",
