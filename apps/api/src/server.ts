@@ -1,15 +1,15 @@
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 import { generateAnswer } from '../../../packages/ai/llm';
 import { retrieveContext } from '../../../packages/ai/search';
 
 const app = express();
 app.use(express.json());
 
-app.get('/health', (_, res) => {
+app.get('/health', (_: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
-app.post('/ask', async (req, res) => {
+app.post('/ask', async (req: Request, res: Response) => {
   const { question } = req.body;
 
   const context = await retrieveContext(question);
