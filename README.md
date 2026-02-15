@@ -2,6 +2,8 @@
 
 A 30-day build plan for a fully functioning multi-tenant AI compliance assistant, built on Cloudflare for client delivery.
 
+![Cloudflare System Architecture](infra/diagrams/cloudflare-system.svg)
+
 ## Goal
 
 Ship a working system that can:
