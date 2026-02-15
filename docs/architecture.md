@@ -98,6 +98,13 @@ flowchart LR
 4. API Worker calls the model provider with grounded context.
 5. API Worker returns answer + citations and emits metrics/audit events.
 
+## API Routing Layer
+
+- API Worker uses `Hono` for route registration and not-found handling.
+- Route handlers remain in dedicated modules under `apps/api-worker/src/routes/`.
+- Request validation is performed at handler boundaries via `zod` schemas.
+- This keeps routing concerns separate from validation and business logic.
+
 ## Ingestion Flow
 
 1. Admin uploads source documents through API.

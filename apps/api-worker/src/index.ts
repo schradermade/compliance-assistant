@@ -1,44 +1,21 @@
+import { Hono } from "hono";
+export { RateLimiter } from "./durable/rate-limiter";
 import { handleHealth } from "./routes/health";
 import { handleIngest } from "./routes/ingest";
 import { handleMetrics } from "./routes/metrics";
 import { handleQuery } from "./routes/query";
 
 export interface Env {}
-export class RateLimiter {
-  constructor(
-    private readonly _state: unknown,
-    private readonly _env: Env,
-  ) {}
 
-  async fetch(): Promise<Response> {
-    return Response.json({ status: "ok", service: "rate-limiter" });
-  }
-}
+const app = new Hono<{ Bindings: Env }>();
 
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    const method = request.method.toUpperCase();
+app.get("/health", () => handleHealth());
+app.post("/query", (c) => handleQuery(c.req.raw, c.env));
+app.post("/ingest", (c) => handleIngest(c.req.raw, c.env));
+app.get("/metrics", (c) => handleMetrics(c.req.raw, c.env));
 
-    if (method === "GET" && url.pathname === "/health") {
-      return handleHealth();
-    }
+app.notFound((c) =>
+  c.json({ error: { code: "not_found", message: "Route not found" } }, 404),
+);
 
-    if (method === "POST" && url.pathname === "/query") {
-      return handleQuery(request, env);
-    }
-
-    if (method === "POST" && url.pathname === "/ingest") {
-      return handleIngest(request, env);
-    }
-
-    if (method === "GET" && url.pathname === "/metrics") {
-      return handleMetrics(request, env);
-    }
-
-    return Response.json(
-      { error: { code: "not_found", message: "Route not found" } },
-      { status: 404 },
-    );
-  },
-};
+export default app;
