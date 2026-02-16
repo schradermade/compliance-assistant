@@ -1,41 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { ArchitectureTracePanel } from "../components/ArchitectureTracePanel";
 import { CommandBar } from "../components/CommandBar";
 import { QueryComposer } from "../components/QueryComposer";
 import { ResponsePanel } from "../components/ResponsePanel";
-import { submitQuery } from "../lib/api-client";
-import { DEFAULT_TENANT, DEFAULT_TOP_K } from "../lib/constants";
+import { usePortalSession } from "../hooks/usePortalSession";
 
 export default function UserPortalPage() {
-  const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
-  const [topK, setTopK] = useState(DEFAULT_TOP_K);
-  const [question, setQuestion] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError("");
-
-    try {
-      const payload = {
-        tenantId,
-        question,
-        topK,
-      };
-
-      const data = await submitQuery(payload);
-      setResult(data);
-    } catch (requestError) {
-      setResult(null);
-      setError(requestError.message || "Query failed");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const {
+    tenantId,
+    topK,
+    question,
+    isSubmitting,
+    result,
+    error,
+    traceRequestId,
+    traceEvents,
+    traceError,
+    isTraceRunning,
+    setTenantId,
+    setTopK,
+    setQuestion,
+    handleSubmit,
+  } = usePortalSession();
 
   return (
     <main className="portal-shell">
@@ -54,6 +41,15 @@ export default function UserPortalPage() {
         />
 
         <ResponsePanel result={result} error={error} />
+      </section>
+
+      <section className="portal-grid single">
+        <ArchitectureTracePanel
+          requestId={traceRequestId}
+          events={traceEvents}
+          isRunning={isTraceRunning}
+          traceError={traceError}
+        />
       </section>
     </main>
   );

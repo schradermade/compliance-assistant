@@ -103,6 +103,10 @@ flowchart LR
 - Route handlers remain in dedicated modules under `apps/api-worker/src/routes/`.
 - Request validation is performed at handler boundaries via `zod` schemas.
 - This keeps routing concerns separate from validation and business logic.
+- Traceability endpoints for live UX visualization:
+  - `GET /trace` for snapshot polling
+  - `GET /trace/stream` for SSE event streaming keyed by `requestId`
+- Current trace store is in-memory for development/demo; production should move to durable storage (e.g., D1/KV/DO-backed stream fanout).
 
 ## Ingestion Flow
 

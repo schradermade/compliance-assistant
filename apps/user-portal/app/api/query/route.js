@@ -1,5 +1,6 @@
 export async function POST(request) {
   const apiBase = process.env.API_WORKER_URL || "http://127.0.0.1:8787";
+  const clientRequestId = request.headers.get("x-request-id") ?? "";
 
   let body;
   try {
@@ -16,6 +17,7 @@ export async function POST(request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(clientRequestId ? { "x-request-id": clientRequestId } : {}),
       },
       body: JSON.stringify(body),
       cache: "no-store",

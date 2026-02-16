@@ -10,6 +10,7 @@ Development standards and decision records for this project:
 - Engineering Playbook: `docs/engineering-playbook.md`
 - Architecture Decision Records (ADRs): `docs/adrs/`
 - PR Checklist: `docs/checklists/pr-checklist.md`
+- Learning module (isolated from runtime code): `learning/README.md`
 
 ## Goal
 

@@ -6,6 +6,8 @@ import { handleIncidents } from "./routes/incidents";
 import { handleJobs } from "./routes/jobs";
 import { handleMetrics } from "./routes/metrics";
 import { handleQuery } from "./routes/query";
+import { handleTrace } from "./routes/trace";
+import { handleTraceStream } from "./routes/trace-stream";
 
 export interface Env {}
 
@@ -17,6 +19,8 @@ app.post("/ingest", (c) => handleIngest(c.req.raw, c.env));
 app.get("/metrics", (c) => handleMetrics(c.req.raw, c.env));
 app.get("/jobs", (c) => handleJobs(c.req.raw, c.env));
 app.get("/incidents", (c) => handleIncidents(c.req.raw, c.env));
+app.get("/trace", (c) => handleTrace(c.req.raw, c.env));
+app.get("/trace/stream", (c) => handleTraceStream(c.req.raw, c.env));
 
 app.notFound((c) =>
   c.json({ error: { code: "not_found", message: "Route not found" } }, 404),
