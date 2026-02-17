@@ -21,8 +21,8 @@ Snapshot date: February 17, 2026
   - Done: `GET /metrics` contract and dashboard wiring are live.
   - Remaining: replace static metric payload with measured telemetry and cost accounting.
 - [ ] Day 10: Async ingestion with Queues
-  - Done: queue bindings + consumer scaffold exist.
-  - Remaining: enqueue from `/ingest` and process parse/chunk/embed/index end-to-end.
+  - Done: `/ingest` now publishes validated queue messages and `queue-consumer` validates, processes (`parse -> chunk -> embed -> index`), and acknowledges successful jobs.
+  - Remaining: add explicit dead-letter strategy and production retry/backoff policy documentation.
 - [ ] Day 18: Identity-aware rate limiting
   - Done: Durable Object class and Worker binding are in place.
   - Remaining: enforce limiter keys by user + tenant + API key and emit block/anomaly events.
@@ -42,8 +42,9 @@ Snapshot date: February 17, 2026
    - [ ] Run a fresh dev environment deploy strictly from `docs/runbooks/environment-deploy-runbook.md`.
    - [ ] Capture any step drift and patch docs immediately.
 2. Day 10 implementation pass
-   - [ ] Wire `/ingest` to publish queue messages.
-   - [ ] Implement queue-consumer processing path with tenant-scoped status updates.
+   - [x] Wire `/ingest` to publish queue messages.
+   - [x] Implement queue-consumer processing path with tenant-scoped guardrails.
+   - [ ] Add dead-letter handling strategy and retry/backoff controls.
 3. Day 2 local runtime verification
    - [ ] Run `pnpm run verify:day2-local-dev`.
    - [ ] Record verification results in this status file.

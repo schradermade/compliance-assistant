@@ -116,6 +116,21 @@ flowchart LR
 4. Ingest worker chunks documents, generates embeddings, and updates Vectorize.
 5. Ingest worker records status and audit trails in D1.
 
+### Ingest Queue Contract and Processing Guarantees
+
+- Queue message contract is schema-first and defined in `packages/shared/src/schemas/zod/ingest-job.schema.ts`.
+- API Worker validates and publishes a typed message containing:
+  - `jobId`, `requestId`, `tenantId`
+  - `requestedBy` actor metadata (`userId`, `email`, `roles`)
+  - `document` payload
+  - optional `idempotencyKey`
+  - `requestedAt` ISO timestamp
+- Queue consumer re-validates every message with the same shared schema before processing.
+- Invalid messages are acknowledged and dropped after structured error logging (poison message protection).
+- Valid messages execute staged processing (`parse`, `chunk`, `embed`, `index`) with stage-level logs.
+- Tenant isolation is enforced in consumer processing via object-key prefix checks (`tenantId/`).
+- Processing failures are not acknowledged so Cloudflare Queues can retry per queue policy.
+
 ## Provisioning Notes
 
 - Cloudflare resource inventory (KV, D1, R2, Queues, Vectorize) is tracked in:
