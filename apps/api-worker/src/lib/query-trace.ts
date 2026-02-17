@@ -11,17 +11,6 @@ function questionPreview(question: string): string {
   return `${normalized.slice(0, 77)}...`;
 }
 
-export function resolveTraceRequestId(
-  request: Request,
-  fallbackRequestId: string,
-): string {
-  const candidate = request.headers.get("x-request-id");
-  if (candidate && /^req_[a-zA-Z0-9_-]{6,64}$/.test(candidate)) {
-    return candidate;
-  }
-  return fallbackRequestId;
-}
-
 export function traceRequestReceived(
   requestId: string,
   request: Request,

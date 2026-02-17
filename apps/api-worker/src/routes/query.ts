@@ -3,12 +3,18 @@ import {
   queryRequestSchema,
 } from "../../../../packages/shared/src";
 import {
+  enforceRoles,
+  enforceTenantScope,
+  requireAuthContext,
+} from "../lib/auth";
+import {
   createRequestId,
   jsonError,
+  jsonResponse,
   validationErrorResponse,
 } from "../lib/http";
+import type { RouteContext } from "../lib/route-context";
 import {
-  resolveTraceRequestId,
   traceInvalidJson,
   traceJsonParsed,
   traceJsonParseStarted,
@@ -33,9 +39,10 @@ function sleep(ms: number): Promise<void> {
 export async function handleQuery(
   request: Request,
   _env: Env,
+  context?: RouteContext,
 ): Promise<Response> {
   const rawBodyText = await request.clone().text().catch(() => "");
-  const requestId = resolveTraceRequestId(request, createRequestId());
+  const requestId = context?.requestId ?? createRequestId();
 
   traceRequestReceived(requestId, request, rawBodyText);
 
@@ -75,6 +82,27 @@ export async function handleQuery(
   const body = parsed.data;
   traceValidated(requestId, rawBody, body);
 
+  const auth = requireAuthContext(request, requestId);
+  if (auth instanceof Response) {
+    return auth;
+  }
+
+  const roleError = enforceRoles(requestId, auth, [
+    "platform_admin",
+    "tenant_admin",
+    "tenant_analyst",
+    "tenant_viewer",
+    "service_account",
+  ]);
+  if (roleError) {
+    return roleError;
+  }
+
+  const scopeError = enforceTenantScope(requestId, auth, body.tenantId);
+  if (scopeError) {
+    return scopeError;
+  }
+
   traceRetrievalStarted(requestId, body);
   await sleep(220);
   traceRetrievalDone(requestId, body);
@@ -99,5 +127,5 @@ export async function handleQuery(
   };
 
   traceResponseSent(requestId, response);
-  return Response.json(response);
+  return jsonResponse(response, 200, requestId, body.tenantId);
 }

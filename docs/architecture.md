@@ -129,6 +129,13 @@ flowchart LR
 
 All endpoints are tenant-scoped and require authenticated identity context from Cloudflare Access headers.
 
+Development header mapping used by the current API worker implementation:
+- `x-auth-user-id`
+- `x-auth-user-email` (fallback: `cf-access-authenticated-user-email`)
+- `x-auth-tenant-id`
+- `x-auth-roles` (comma-separated app roles)
+- `x-request-id` in responses is server-generated for internal trace/log correlation; caller-provided request IDs are treated as external metadata only.
+
 ### POST /query
 
 Purpose:

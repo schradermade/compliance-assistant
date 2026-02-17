@@ -6,11 +6,13 @@
   "scripts": {
     "dev:api": "ts-node apps/api/src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:authz": "ts-node apps/api-worker/src/lib/auth.test.ts && ts-node apps/api-worker/src/lib/trace.test.ts",
     "governance:check": "bash scripts/check-governance.sh",
     "preflight": "bash scripts/preflight.sh",
     "prepare": "husky",
     "policy:check": "bash scripts/check-policy.sh",
     "ready": "bash scripts/ready.sh",
+    "verify:day2-local-dev": "bash scripts/verify-day2-local-dev.sh",
     "dev:admin": "next dev apps/admin-pages -p 3000",
     "build:admin": "next build apps/admin-pages",
     "dev:user": "next dev apps/user-portal -p 3002",

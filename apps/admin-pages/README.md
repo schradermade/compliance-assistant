@@ -24,6 +24,11 @@ This app is the Next.js admin dashboard for operational visibility (metrics, ing
 - `API_WORKER_URL`
   - Base URL for API Worker endpoints (`/metrics`, `/jobs`, `/incidents`)
   - Default fallback: `http://127.0.0.1:8787`
+- `API_AUTH_USER_ID`
+- `API_AUTH_USER_EMAIL`
+- `API_AUTH_TENANT_ID` (default `tenant_abc`)
+- `API_AUTH_ROLES` (default `platform_admin`)
+- In non-dev runtime, auth env vars must be set (fetch path fails closed and uses fallback dashboard data).
 
 ## Local Development
 

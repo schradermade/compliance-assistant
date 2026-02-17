@@ -23,7 +23,16 @@ fi
 # 2) If architecture-sensitive files changed, require ADR/docs change in same diff range.
 base_ref="${POLICY_BASE_REF:-origin/main}"
 if git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-  changed="$(git diff --name-only "$base_ref"...HEAD)"
+  changed_committed="$(git diff --name-only "$base_ref"...HEAD)"
+  changed_staged="$(git diff --name-only --cached)"
+  changed_unstaged="$(git diff --name-only)"
+  changed="$(
+    {
+      echo "$changed_committed"
+      echo "$changed_staged"
+      echo "$changed_unstaged"
+    } | sed '/^$/d' | sort -u
+  )"
 
   sensitive_changed=0
   docs_or_adr_changed=0

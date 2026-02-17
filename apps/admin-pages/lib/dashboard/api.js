@@ -3,6 +3,7 @@ import {
   FALLBACK_METRICS,
   createFallbackIncidents,
 } from "./fallbacks";
+import { resolveApiAuthHeaders } from "../../../shared/api-auth-headers";
 import { rangeToWindow } from "./time";
 
 function buildApiUrl(path, params = {}) {
@@ -19,8 +20,24 @@ function buildApiUrl(path, params = {}) {
 }
 
 async function fetchJson(path, params) {
+  const auth = resolveApiAuthHeaders({
+    defaultEmail: "admin-dashboard@local",
+    defaultRoles: "platform_admin",
+  });
+  if (!auth.ok) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        event: "admin_api_auth_config_error",
+        message: auth.error,
+      }),
+    );
+    return { ok: false, data: null };
+  }
+
   const response = await fetch(buildApiUrl(path, params), {
     method: "GET",
+    headers: auth.headers,
     cache: "no-store",
   });
 

@@ -4,12 +4,24 @@ export function createRequestId(): string {
   return `req_${crypto.randomUUID().slice(0, 12)}`;
 }
 
+export function jsonResponse(
+  body: unknown,
+  status: number,
+  requestId: string,
+  tenantId: string | undefined,
+): Response {
+  const response = Response.json(body, { status });
+  response.headers.set("x-request-id", requestId);
+  response.headers.set("x-tenant-id", tenantId ?? "unknown");
+  return response;
+}
+
 export function validationErrorResponse(
   requestId: string,
   tenantId: string | undefined,
   error: ZodError,
 ): Response {
-  return Response.json(
+  return jsonResponse(
     {
       requestId,
       tenantId: tenantId ?? "unknown",
@@ -23,7 +35,9 @@ export function validationErrorResponse(
         })),
       },
     },
-    { status: 400 },
+    400,
+    requestId,
+    tenantId,
   );
 }
 
@@ -34,12 +48,14 @@ export function jsonError(
   status: number,
   tenantId = "unknown",
 ): Response {
-  return Response.json(
+  return jsonResponse(
     {
       requestId,
       tenantId,
       error: { code, message },
     },
-    { status },
+    status,
+    requestId,
+    tenantId,
   );
 }

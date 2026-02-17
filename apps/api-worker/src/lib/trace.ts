@@ -58,3 +58,63 @@ export function isTraceFinished(events: TraceEvent[]): boolean {
       event.stage === "request_failed",
   );
 }
+
+function getNestedValue(
+  value: unknown,
+  path: readonly string[],
+): unknown | undefined {
+  let current: unknown = value;
+  for (const segment of path) {
+    if (!current || typeof current !== "object" || !(segment in current)) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return current;
+}
+
+function parseTenantFromRawBody(raw: unknown): string | undefined {
+  if (typeof raw !== "string" || !raw.trim()) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(raw) as { tenantId?: unknown };
+    return typeof parsed.tenantId === "string" ? parsed.tenantId : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function resolveTraceTenantId(events: TraceEvent[]): string | undefined {
+  const candidatePaths: readonly (readonly string[])[] = [
+    ["tenantId"],
+    ["incoming", "tenantId"],
+    ["outgoing", "tenantId"],
+    ["incoming", "request", "tenantId"],
+    ["outgoing", "request", "tenantId"],
+    ["incoming", "retrievalQuery", "tenantId"],
+    ["outgoing", "retrievalQuery", "tenantId"],
+    ["incoming", "parsedBody", "tenantId"],
+    ["outgoing", "parsedBody", "tenantId"],
+    ["incoming", "candidate", "tenantId"],
+    ["outgoing", "candidate", "tenantId"],
+  ];
+
+  for (const event of events) {
+    const payload = event.payload;
+    for (const path of candidatePaths) {
+      const candidate = getNestedValue(payload, path);
+      if (typeof candidate === "string" && candidate.length > 0) {
+        return candidate;
+      }
+    }
+
+    const bodyCandidate = getNestedValue(payload, ["incoming", "body"]);
+    const tenantFromBody = parseTenantFromRawBody(bodyCandidate);
+    if (tenantFromBody) {
+      return tenantFromBody;
+    }
+  }
+
+  return undefined;
+}

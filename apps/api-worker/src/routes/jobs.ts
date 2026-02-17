@@ -2,11 +2,25 @@ import {
   jobsQueryParamsSchema,
   type JobsResponse,
 } from "../../../../packages/shared/src";
-import { createRequestId, validationErrorResponse } from "../lib/http";
+import {
+  enforceRoles,
+  enforceTenantScope,
+  requireAuthContext,
+} from "../lib/auth";
+import {
+  createRequestId,
+  jsonResponse,
+  validationErrorResponse,
+} from "../lib/http";
+import type { RouteContext } from "../lib/route-context";
 import type { Env } from "../index";
 
-export async function handleJobs(request: Request, _env: Env): Promise<Response> {
-  const requestId = createRequestId();
+export async function handleJobs(
+  request: Request,
+  _env: Env,
+  context?: RouteContext,
+): Promise<Response> {
+  const requestId = context?.requestId ?? createRequestId();
   const url = new URL(request.url);
 
   const candidate = {
@@ -20,6 +34,31 @@ export async function handleJobs(request: Request, _env: Env): Promise<Response>
   }
 
   const params = parsed.data;
+  const auth = requireAuthContext(request, requestId);
+  if (auth instanceof Response) {
+    return auth;
+  }
+
+  const roleError = enforceRoles(requestId, auth, [
+    "platform_admin",
+    "tenant_admin",
+    "tenant_analyst",
+    "tenant_viewer",
+  ]);
+  if (roleError) {
+    return roleError;
+  }
+
+  let tenantScope = params.tenantId;
+  if (tenantScope) {
+    const scopeError = enforceTenantScope(requestId, auth, tenantScope);
+    if (scopeError) {
+      return scopeError;
+    }
+  } else if (!auth.roles.includes("platform_admin")) {
+    tenantScope = auth.tenantId;
+  }
+
   const allJobs = [
     {
       id: "job_8f2ca12",
@@ -55,16 +94,16 @@ export async function handleJobs(request: Request, _env: Env): Promise<Response>
     },
   ] as const;
 
-  const filtered = params.tenantId
-    ? allJobs.filter((job) => job.tenantId === params.tenantId)
+  const filtered = tenantScope
+    ? allJobs.filter((job) => job.tenantId === tenantScope)
     : allJobs;
   const jobs = filtered.slice(0, params.limit ?? 20);
 
   const response: JobsResponse = {
     requestId,
-    tenantId: params.tenantId ?? "platform",
+    tenantId: tenantScope ?? "platform",
     jobs: [...jobs],
   };
 
-  return Response.json(response);
+  return jsonResponse(response, 200, requestId, response.tenantId);
 }

@@ -2,14 +2,26 @@ import {
   ingestRequestSchema,
   type IngestResponse,
 } from "../../../../packages/shared/src";
-import { createRequestId, jsonError, validationErrorResponse } from "../lib/http";
+import {
+  enforceRoles,
+  enforceTenantScope,
+  requireAuthContext,
+} from "../lib/auth";
+import {
+  createRequestId,
+  jsonError,
+  jsonResponse,
+  validationErrorResponse,
+} from "../lib/http";
+import type { RouteContext } from "../lib/route-context";
 import type { Env } from "../index";
 
 export async function handleIngest(
   request: Request,
   _env: Env,
+  context?: RouteContext,
 ): Promise<Response> {
-  const requestId = createRequestId();
+  const requestId = context?.requestId ?? createRequestId();
 
   let rawBody: unknown;
   try {
@@ -33,6 +45,25 @@ export async function handleIngest(
   }
 
   const body = parsed.data;
+  const auth = requireAuthContext(request, requestId);
+  if (auth instanceof Response) {
+    return auth;
+  }
+
+  const roleError = enforceRoles(requestId, auth, [
+    "platform_admin",
+    "tenant_admin",
+    "service_account",
+  ]);
+  if (roleError) {
+    return roleError;
+  }
+
+  const scopeError = enforceTenantScope(requestId, auth, body.tenantId);
+  if (scopeError) {
+    return scopeError;
+  }
+
   const response: IngestResponse = {
     requestId,
     tenantId: body.tenantId,
@@ -40,5 +71,5 @@ export async function handleIngest(
     status: "queued",
   };
 
-  return Response.json(response, { status: 202 });
+  return jsonResponse(response, 202, requestId, body.tenantId);
 }

@@ -2,14 +2,25 @@ import {
   incidentsQueryParamsSchema,
   type IncidentsResponse,
 } from "../../../../packages/shared/src";
-import { createRequestId, validationErrorResponse } from "../lib/http";
+import {
+  enforceRoles,
+  enforceTenantScope,
+  requireAuthContext,
+} from "../lib/auth";
+import {
+  createRequestId,
+  jsonResponse,
+  validationErrorResponse,
+} from "../lib/http";
+import type { RouteContext } from "../lib/route-context";
 import type { Env } from "../index";
 
 export async function handleIncidents(
   request: Request,
   _env: Env,
+  context?: RouteContext,
 ): Promise<Response> {
-  const requestId = createRequestId();
+  const requestId = context?.requestId ?? createRequestId();
   const url = new URL(request.url);
 
   const candidate = {
@@ -25,6 +36,31 @@ export async function handleIncidents(
   }
 
   const params = parsed.data;
+  const auth = requireAuthContext(request, requestId);
+  if (auth instanceof Response) {
+    return auth;
+  }
+
+  const roleError = enforceRoles(requestId, auth, [
+    "platform_admin",
+    "tenant_admin",
+    "tenant_analyst",
+    "tenant_viewer",
+  ]);
+  if (roleError) {
+    return roleError;
+  }
+
+  let tenantScope = params.tenantId;
+  if (tenantScope) {
+    const scopeError = enforceTenantScope(requestId, auth, tenantScope);
+    if (scopeError) {
+      return scopeError;
+    }
+  } else if (!auth.roles.includes("platform_admin")) {
+    tenantScope = auth.tenantId;
+  }
+
   const allIncidents = [
     {
       id: "req_017fa8f2c9d",
@@ -55,8 +91,8 @@ export async function handleIncidents(
     },
   ] as const;
 
-  let filtered = params.tenantId
-    ? allIncidents.filter((incident) => incident.tenantId === params.tenantId)
+  let filtered = tenantScope
+    ? allIncidents.filter((incident) => incident.tenantId === tenantScope)
     : allIncidents;
 
   if (params.from) {
@@ -75,9 +111,9 @@ export async function handleIncidents(
   const incidents = filtered.slice(0, params.limit ?? 20);
   const response: IncidentsResponse = {
     requestId,
-    tenantId: params.tenantId ?? "platform",
+    tenantId: tenantScope ?? "platform",
     incidents: [...incidents],
   };
 
-  return Response.json(response);
+  return jsonResponse(response, 200, requestId, response.tenantId);
 }
