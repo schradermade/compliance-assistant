@@ -1,10 +1,11 @@
 name = "compliance-user-portal"
+account_id = "2a49cc296188fe3b7e3c33e98f1d4cd2"
 compatibility_date = "2026-02-15"
 pages_build_output_dir = "dist"
 
 [vars]
 ENV_NAME = "dev"
-API_BASE_URL = "https://compliance-api-worker.<account>.workers.dev"
+API_BASE_URL = "https://compliance-api.natescloud.workers.dev"
 
 [env.staging.vars]
 ENV_NAME = "staging"

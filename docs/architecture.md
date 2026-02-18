@@ -150,6 +150,7 @@ flowchart LR
 
 - Cloudflare resource inventory (KV, D1, R2, Queues, Vectorize) is tracked in:
   - `docs/cloudflare-resources.md`
+- All application `wrangler.toml` files pin the compliance Cloudflare `account_id` to avoid cross-project/account deployments.
 - Secrets setup commands are tracked in:
   - `docs/cloudflare-secrets.md`
 - API worker Durable Object (`RateLimiter`) is configured with migration tag `v1` in:

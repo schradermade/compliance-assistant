@@ -1,4 +1,5 @@
-name = "compliance-ingest-worker"
+name = "compliance-ingest"
+account_id = "2a49cc296188fe3b7e3c33e98f1d4cd2"
 main = "src/index.ts"
 compatibility_date = "2026-02-15"
 workers_dev = true
@@ -19,11 +20,6 @@ database_id = "11f10559-222b-493c-bb74-a28b247cf273"
 binding = "VECTORIZE_INDEX"
 index_name = "compliance-dev-index"
 
-[[queues.consumers]]
-queue = "compliance-ingest-dev"
-max_batch_size = 10
-max_batch_timeout = 5
-
 [env.staging.vars]
 ENV_NAME = "staging"
 
@@ -40,11 +36,6 @@ database_id = "0973e44e-1cad-4861-a552-3c07063b6537"
 binding = "VECTORIZE_INDEX"
 index_name = "compliance-staging-index"
 
-[[env.staging.queues.consumers]]
-queue = "compliance-ingest-staging"
-max_batch_size = 10
-max_batch_timeout = 5
-
 [env.prod.vars]
 ENV_NAME = "prod"
 
@@ -60,8 +51,3 @@ database_id = "868eb001-dea3-4b7a-86ff-f5a797f8d7db"
 [[env.prod.vectorize]]
 binding = "VECTORIZE_INDEX"
 index_name = "compliance-prod-index"
-
-[[env.prod.queues.consumers]]
-queue = "compliance-ingest-prod"
-max_batch_size = 20
-max_batch_timeout = 5

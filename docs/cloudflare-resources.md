@@ -2,6 +2,8 @@
 
 Provisioned on 2026-02-15 for account `2a49cc296188fe3b7e3c33e98f1d4cd2`.
 
+All `wrangler.toml` files pin `account_id = "2a49cc296188fe3b7e3c33e98f1d4cd2"` to prevent deploying into a different Cloudflare account context.
+
 ## KV Namespaces
 
 | Environment | Name | ID |
@@ -40,4 +42,8 @@ Provisioned on 2026-02-15 for account `2a49cc296188fe3b7e3c33e98f1d4cd2`.
 
 - `apps/api-worker/wrangler.toml` and `apps/ingest-worker/wrangler.toml` are patched with real D1/KV IDs.
 - `apps/api-worker/wrangler.toml` includes Durable Object migration tag `v1` for `RateLimiter`.
+- Worker script naming convention uses `project-service`:
+  - `compliance-api`
+  - `compliance-ingest`
+  - `compliance-queue`
 - Secrets are not set by this document; configure with `wrangler secret put` per environment.
