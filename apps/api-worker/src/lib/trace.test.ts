@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+import { describe, expect, it } from "vitest";
 import type { TraceEvent } from "./trace";
 import { resolveTraceTenantId } from "./trace";
 
@@ -12,42 +12,35 @@ function makeEvent(payload: Record<string, unknown>): TraceEvent {
   };
 }
 
-function testResolveTenantFromNestedRequest() {
-  const events = [
-    makeEvent({
-      outgoing: {
-        request: {
-          tenantId: "tenant_abc",
+describe("resolveTraceTenantId", () => {
+  it("finds tenant from nested outgoing request payload", () => {
+    const events = [
+      makeEvent({
+        outgoing: {
+          request: {
+            tenantId: "tenant_abc",
+          },
         },
-      },
-    }),
-  ];
+      }),
+    ];
 
-  assert.equal(resolveTraceTenantId(events), "tenant_abc");
-}
+    expect(resolveTraceTenantId(events)).toBe("tenant_abc");
+  });
 
-function testResolveTenantFromRawBody() {
-  const events = [
-    makeEvent({
-      incoming: {
-        body: JSON.stringify({ tenantId: "tenant_delta" }),
-      },
-    }),
-  ];
+  it("finds tenant from raw incoming body JSON", () => {
+    const events = [
+      makeEvent({
+        incoming: {
+          body: JSON.stringify({ tenantId: "tenant_delta" }),
+        },
+      }),
+    ];
 
-  assert.equal(resolveTraceTenantId(events), "tenant_delta");
-}
+    expect(resolveTraceTenantId(events)).toBe("tenant_delta");
+  });
 
-function testResolveTenantMissing() {
-  const events = [makeEvent({ incoming: { body: "{}" } })];
-  assert.equal(resolveTraceTenantId(events), undefined);
-}
-
-function run() {
-  testResolveTenantFromNestedRequest();
-  testResolveTenantFromRawBody();
-  testResolveTenantMissing();
-  console.log("trace.test.ts: ok");
-}
-
-run();
+  it("returns undefined when tenant cannot be resolved", () => {
+    const events = [makeEvent({ incoming: { body: "{}" } })];
+    expect(resolveTraceTenantId(events)).toBeUndefined();
+  });
+});

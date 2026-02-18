@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+import { describe, expect, it } from "vitest";
 import { enforceRoles, enforceTenantScope, requireAuthContext } from "./auth";
 
 function makeRequest(headers: Record<string, string>): Request {
@@ -8,77 +8,69 @@ function makeRequest(headers: Record<string, string>): Request {
   });
 }
 
-function testRequireAuthContextSuccess() {
-  const request = makeRequest({
-    "x-auth-user-id": "user_1",
-    "x-auth-user-email": "user@example.com",
-    "x-auth-tenant-id": "tenant_abc",
-    "x-auth-roles": "tenant_analyst",
+describe("auth", () => {
+  it("resolves auth context when required headers are present", () => {
+    const request = makeRequest({
+      "x-auth-user-id": "user_1",
+      "x-auth-user-email": "user@example.com",
+      "x-auth-tenant-id": "tenant_abc",
+      "x-auth-roles": "tenant_analyst",
+    });
+
+    const auth = requireAuthContext(request, "req_test_1");
+    expect(auth instanceof Response).toBe(false);
+    if (auth instanceof Response) {
+      return;
+    }
+
+    expect(auth.tenantId).toBe("tenant_abc");
+    expect(auth.roles).toEqual(["tenant_analyst"]);
   });
 
-  const auth = requireAuthContext(request, "req_test_1");
-  assert.equal(auth instanceof Response, false);
-  if (auth instanceof Response) {
-    return;
-  }
+  it("returns 401 when auth headers are missing", () => {
+    const request = makeRequest({});
+    const auth = requireAuthContext(request, "req_test_2");
+    expect(auth instanceof Response).toBe(true);
+    if (!(auth instanceof Response)) {
+      return;
+    }
 
-  assert.equal(auth.tenantId, "tenant_abc");
-  assert.deepEqual(auth.roles, ["tenant_analyst"]);
-}
-
-function testRequireAuthContextMissingHeaders() {
-  const request = makeRequest({});
-  const auth = requireAuthContext(request, "req_test_2");
-  assert.equal(auth instanceof Response, true);
-  if (!(auth instanceof Response)) {
-    return;
-  }
-
-  assert.equal(auth.status, 401);
-}
-
-function testEnforceRolesDenied() {
-  const request = makeRequest({
-    "x-auth-user-id": "user_1",
-    "x-auth-user-email": "user@example.com",
-    "x-auth-tenant-id": "tenant_abc",
-    "x-auth-roles": "tenant_viewer",
+    expect(auth.status).toBe(401);
   });
-  const auth = requireAuthContext(request, "req_test_3");
-  assert.equal(auth instanceof Response, false);
-  if (auth instanceof Response) {
-    return;
-  }
 
-  const denied = enforceRoles("req_test_3", auth, ["tenant_admin"]);
-  assert.equal(denied instanceof Response, true);
-  assert.equal(denied?.status, 403);
-}
+  it("returns 403 when caller lacks required role", () => {
+    const request = makeRequest({
+      "x-auth-user-id": "user_1",
+      "x-auth-user-email": "user@example.com",
+      "x-auth-tenant-id": "tenant_abc",
+      "x-auth-roles": "tenant_viewer",
+    });
+    const auth = requireAuthContext(request, "req_test_3");
+    expect(auth instanceof Response).toBe(false);
+    if (auth instanceof Response) {
+      return;
+    }
 
-function testEnforceTenantScopeDenied() {
-  const request = makeRequest({
-    "x-auth-user-id": "user_1",
-    "x-auth-user-email": "user@example.com",
-    "x-auth-tenant-id": "tenant_abc",
-    "x-auth-roles": "tenant_analyst",
+    const denied = enforceRoles("req_test_3", auth, ["tenant_admin"]);
+    expect(denied instanceof Response).toBe(true);
+    expect(denied?.status).toBe(403);
   });
-  const auth = requireAuthContext(request, "req_test_4");
-  assert.equal(auth instanceof Response, false);
-  if (auth instanceof Response) {
-    return;
-  }
 
-  const denied = enforceTenantScope("req_test_4", auth, "tenant_delta");
-  assert.equal(denied instanceof Response, true);
-  assert.equal(denied?.status, 403);
-}
+  it("returns 403 when tenant scope does not match", () => {
+    const request = makeRequest({
+      "x-auth-user-id": "user_1",
+      "x-auth-user-email": "user@example.com",
+      "x-auth-tenant-id": "tenant_abc",
+      "x-auth-roles": "tenant_analyst",
+    });
+    const auth = requireAuthContext(request, "req_test_4");
+    expect(auth instanceof Response).toBe(false);
+    if (auth instanceof Response) {
+      return;
+    }
 
-function run() {
-  testRequireAuthContextSuccess();
-  testRequireAuthContextMissingHeaders();
-  testEnforceRolesDenied();
-  testEnforceTenantScopeDenied();
-  console.log("auth.test.ts: ok");
-}
-
-run();
+    const denied = enforceTenantScope("req_test_4", auth, "tenant_delta");
+    expect(denied instanceof Response).toBe(true);
+    expect(denied?.status).toBe(403);
+  });
+});

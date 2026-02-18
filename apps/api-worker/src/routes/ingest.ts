@@ -18,6 +18,16 @@ import {
 import type { RouteContext } from "../lib/route-context";
 import type { Env } from "../index";
 
+const IDEMPOTENCY_KEY_TTL_SECONDS = 60 * 60 * 24 * 7;
+
+interface StoredIngestJobRef {
+  jobId: string;
+}
+
+function buildIngestIdempotencyKey(tenantId: string, idempotencyKey: string): string {
+  return `ingest:idempotency:${tenantId}:${idempotencyKey}`;
+}
+
 export async function handleIngest(
   request: Request,
   env: Env,
@@ -66,6 +76,32 @@ export async function handleIngest(
     return scopeError;
   }
 
+  let idempotencyStorageKey: string | undefined;
+  if (body.idempotencyKey) {
+    idempotencyStorageKey = buildIngestIdempotencyKey(
+      body.tenantId,
+      body.idempotencyKey,
+    );
+
+    const existing = await env.CACHE_KV.get(idempotencyStorageKey);
+    if (existing) {
+      try {
+        const parsedExisting = JSON.parse(existing) as StoredIngestJobRef;
+        if (typeof parsedExisting.jobId === "string" && parsedExisting.jobId.length > 0) {
+          const response: IngestResponse = {
+            requestId,
+            tenantId: body.tenantId,
+            jobId: parsedExisting.jobId,
+            status: "queued",
+          };
+          return jsonResponse(response, 202, requestId, body.tenantId);
+        }
+      } catch {
+        // Corrupt cached value should not block ingestion. Continue and overwrite.
+      }
+    }
+  }
+
   const jobId = `job_${crypto.randomUUID().slice(0, 8)}`;
   const queueMessage: IngestQueueMessage = {
     jobId,
@@ -92,9 +128,33 @@ export async function handleIngest(
     );
   }
 
+  if (idempotencyStorageKey) {
+    const storedValue = JSON.stringify({ jobId } satisfies StoredIngestJobRef);
+    try {
+      await env.CACHE_KV.put(idempotencyStorageKey, storedValue, {
+        expirationTtl: IDEMPOTENCY_KEY_TTL_SECONDS,
+      });
+    } catch {
+      return jsonError(
+        requestId,
+        "idempotency_store_failed",
+        "Failed to persist idempotency state",
+        500,
+        body.tenantId,
+      );
+    }
+  }
+
   try {
     await env.INGEST_QUEUE.send(queuePayload.data);
   } catch {
+    if (idempotencyStorageKey) {
+      try {
+        await env.CACHE_KV.delete(idempotencyStorageKey);
+      } catch {
+        // Best-effort rollback. A stale key will resolve to an existing job reference.
+      }
+    }
     return jsonError(
       requestId,
       "queue_publish_failed",

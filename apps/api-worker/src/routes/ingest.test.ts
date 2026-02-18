@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+import { describe, expect, it } from "vitest";
 import {
   ingestQueueMessageSchema,
   type IngestQueueMessage,
@@ -20,61 +20,131 @@ function makeRequest(body: unknown): Request {
   });
 }
 
-async function testIngestPublishesQueueMessage() {
-  let sent: IngestQueueMessage | undefined;
-  const env: Env = {
-    INGEST_QUEUE: {
-      async send(message: IngestQueueMessage): Promise<void> {
-        sent = message;
+describe("handleIngest", () => {
+  it("publishes a valid queue message", async () => {
+    let sent: IngestQueueMessage | undefined;
+    const kv = new Map<string, string>();
+    const env: Env = {
+      INGEST_QUEUE: {
+        async send(message: IngestQueueMessage): Promise<void> {
+          sent = message;
+        },
       },
-    },
-  };
+      CACHE_KV: {
+        async get(key: string): Promise<string | null> {
+          return kv.get(key) ?? null;
+        },
+        async put(key: string, value: string): Promise<void> {
+          kv.set(key, value);
+        },
+        async delete(key: string): Promise<void> {
+          kv.delete(key);
+        },
+      },
+    };
 
-  const request = makeRequest({
-    tenantId: "tenant_abc",
-    document: {
-      sourceType: "r2",
-      objectKey: "tenant_abc/policies/policy.pdf",
-      title: "Policy",
-      tags: ["policy"],
-    },
-    idempotencyKey: "ingest-v1",
+    const request = makeRequest({
+      tenantId: "tenant_abc",
+      document: {
+        sourceType: "r2",
+        objectKey: "tenant_abc/policies/policy.pdf",
+        title: "Policy",
+        tags: ["policy"],
+      },
+      idempotencyKey: "ingest-v1",
+    });
+
+    const response = await handleIngest(request, env, {
+      requestId: "req_test_ingest",
+    });
+    expect(response.status).toBe(202);
+    expect(Boolean(sent)).toBe(true);
+    expect(ingestQueueMessageSchema.safeParse(sent).success).toBe(true);
   });
 
-  const response = await handleIngest(request, env, { requestId: "req_test_ingest" });
-  assert.equal(response.status, 202);
-  assert.equal(Boolean(sent), true);
-  assert.equal(ingestQueueMessageSchema.safeParse(sent).success, true);
-}
-
-async function testIngestQueuePublishFailure() {
-  const env: Env = {
-    INGEST_QUEUE: {
-      async send(_message: IngestQueueMessage): Promise<void> {
-        throw new Error("queue_down");
+  it("returns 500 when queue publish fails", async () => {
+    const kv = new Map<string, string>();
+    const env: Env = {
+      INGEST_QUEUE: {
+        async send(_message: IngestQueueMessage): Promise<void> {
+          throw new Error("queue_down");
+        },
       },
-    },
-  };
+      CACHE_KV: {
+        async get(key: string): Promise<string | null> {
+          return kv.get(key) ?? null;
+        },
+        async put(key: string, value: string): Promise<void> {
+          kv.set(key, value);
+        },
+        async delete(key: string): Promise<void> {
+          kv.delete(key);
+        },
+      },
+    };
 
-  const request = makeRequest({
-    tenantId: "tenant_abc",
-    document: {
-      sourceType: "r2",
-      objectKey: "tenant_abc/policies/policy.pdf",
-      title: "Policy",
-    },
+    const request = makeRequest({
+      tenantId: "tenant_abc",
+      document: {
+        sourceType: "r2",
+        objectKey: "tenant_abc/policies/policy.pdf",
+        title: "Policy",
+      },
+    });
+
+    const response = await handleIngest(request, env, {
+      requestId: "req_test_ingest_fail",
+    });
+    expect(response.status).toBe(500);
+    const payload = (await response.json()) as { error?: { code?: string } };
+    expect(payload.error?.code).toBe("queue_publish_failed");
   });
 
-  const response = await handleIngest(request, env, { requestId: "req_test_ingest_fail" });
-  assert.equal(response.status, 500);
-  const payload = (await response.json()) as { error?: { code?: string } };
-  assert.equal(payload.error?.code, "queue_publish_failed");
-}
+  it("returns same job id for duplicate idempotency key without republish", async () => {
+    const kv = new Map<string, string>();
+    const sent: IngestQueueMessage[] = [];
+    const env: Env = {
+      INGEST_QUEUE: {
+        async send(message: IngestQueueMessage): Promise<void> {
+          sent.push(message);
+        },
+      },
+      CACHE_KV: {
+        async get(key: string): Promise<string | null> {
+          return kv.get(key) ?? null;
+        },
+        async put(key: string, value: string): Promise<void> {
+          kv.set(key, value);
+        },
+        async delete(key: string): Promise<void> {
+          kv.delete(key);
+        },
+      },
+    };
 
-async function run() {
-  await testIngestPublishesQueueMessage();
-  await testIngestQueuePublishFailure();
-  console.log("ingest.test.ts: ok");
-}
+    const body = {
+      tenantId: "tenant_abc",
+      document: {
+        sourceType: "r2" as const,
+        objectKey: "tenant_abc/policies/policy.pdf",
+        title: "Policy",
+      },
+      idempotencyKey: "ingest-v1",
+    };
 
-run();
+    const first = await handleIngest(makeRequest(body), env, {
+      requestId: "req_test_ingest_1",
+    });
+    const second = await handleIngest(makeRequest(body), env, {
+      requestId: "req_test_ingest_2",
+    });
+
+    expect(first.status).toBe(202);
+    expect(second.status).toBe(202);
+    expect(sent.length).toBe(1);
+
+    const firstBody = (await first.json()) as { jobId: string };
+    const secondBody = (await second.json()) as { jobId: string };
+    expect(secondBody.jobId).toBe(firstBody.jobId);
+  });
+});

@@ -13,10 +13,21 @@ import type { IngestQueueMessage } from '../../../packages/shared/src';
 
 export interface Env {
   INGEST_QUEUE: IngestQueueBinding;
+  CACHE_KV: IdempotencyKvBinding;
 }
 
 interface IngestQueueBinding {
   send(message: IngestQueueMessage): Promise<void>;
+}
+
+interface IdempotencyKvBinding {
+  get(key: string): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number },
+  ): Promise<void>;
+  delete(key: string): Promise<void>;
 }
 
 interface RequestContextVars {

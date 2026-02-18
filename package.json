@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev:api": "ts-node apps/api/src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:authz": "tsx apps/api-worker/src/lib/auth.test.ts && tsx apps/api-worker/src/lib/trace.test.ts",
-    "test:ingest-queue": "tsx apps/api-worker/src/routes/ingest.test.ts && tsx apps/queue-consumer/src/index.test.ts",
+    "test": "vitest run",
+    "test:authz": "vitest run apps/api-worker/src/lib/auth.test.ts apps/api-worker/src/lib/trace.test.ts",
+    "test:ingest-queue": "vitest run apps/api-worker/src/routes/ingest.test.ts apps/queue-consumer/src/index.test.ts",
+    "test:integration:api-worker": "vitest run --config vitest.integration.api-worker.config.ts",
+    "test:integration:queue-consumer": "vitest run --config vitest.integration.queue-consumer.config.ts",
+    "test:integration": "pnpm run test:integration:api-worker && pnpm run test:integration:queue-consumer",
     "governance:check": "bash scripts/check-governance.sh",
     "preflight": "bash scripts/preflight.sh",
     "prepare": "husky",
@@ -23,12 +26,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.8.25",
     "@types/express": "^5.0.6",
     "@types/node": "^20.4.2",
     "husky": "^9.1.7",
     "ts-node": "^10.9.1",
-    "tsx": "^4.20.5",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.40.0"
   },
   "dependencies": {
     "cors": "^2.8.6",

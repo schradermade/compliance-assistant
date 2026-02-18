@@ -3,8 +3,8 @@ import worker from "./index";
 
 function validMessageBody() {
   return {
-    jobId: "job_test_1",
-    requestId: "req_test_1",
+    jobId: "job_integration_1",
+    requestId: "req_integration_1",
     tenantId: "tenant_abc",
     requestedBy: {
       userId: "user_1",
@@ -20,14 +20,14 @@ function validMessageBody() {
   };
 }
 
-describe("queue consumer", () => {
+describe("queue-consumer integration", () => {
   it("acks invalid messages", async () => {
     let acked = false;
     await worker.queue(
       {
         messages: [
           {
-            id: "m_invalid",
+            id: "m_invalid_integration",
             body: { nope: true },
             ack: () => {
               acked = true;
@@ -40,13 +40,13 @@ describe("queue consumer", () => {
     expect(acked).toBe(true);
   });
 
-  it("acks valid messages after successful processing", async () => {
+  it("acks valid messages after successful pipeline", async () => {
     let acked = false;
     await worker.queue(
       {
         messages: [
           {
-            id: "m_valid",
+            id: "m_valid_integration",
             body: validMessageBody(),
             ack: () => {
               acked = true;
@@ -65,10 +65,9 @@ describe("queue consumer", () => {
       {
         messages: [
           {
-            id: "m_scope_mismatch",
+            id: "m_scope_mismatch_integration",
             body: {
               ...validMessageBody(),
-              tenantId: "tenant_abc",
               document: {
                 sourceType: "r2",
                 objectKey: "tenant_other/policies/policy.pdf",

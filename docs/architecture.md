@@ -125,6 +125,10 @@ flowchart LR
   - `document` payload
   - optional `idempotencyKey`
   - `requestedAt` ISO timestamp
+- API-side idempotency gate:
+  - when `idempotencyKey` is provided, API checks `CACHE_KV` for an existing `tenantId + idempotencyKey` mapping,
+  - if present, API returns the existing `jobId` and skips queue re-publish,
+  - if absent, API stores the mapping and publishes the queue message.
 - Queue consumer re-validates every message with the same shared schema before processing.
 - Invalid messages are acknowledged and dropped after structured error logging (poison message protection).
 - Valid messages execute staged processing (`parse`, `chunk`, `embed`, `index`) with stage-level logs.
