@@ -135,6 +135,17 @@ flowchart LR
 - Tenant isolation is enforced in consumer processing via object-key prefix checks (`tenantId/`).
 - Processing failures are not acknowledged so Cloudflare Queues can retry per queue policy.
 
+### Ingest Testing Strategy
+
+- Unit tests run in Node via `vitest` with explicit `Env` mocks for fast boundary and logic checks.
+- Worker integration tests run in Cloudflare runtime simulation (`workerd`) using `@cloudflare/vitest-pool-workers`:
+  - API worker integration validates `POST /ingest` request path and idempotency replay behavior.
+  - Queue-consumer integration validates ack/no-ack behavior for invalid, valid, and tenant-scope mismatch messages.
+- Staging E2E smoke tests call deployed staging endpoints directly with explicit non-prod safety guards:
+  - staging-host enforcement,
+  - required run confirmation token,
+  - unique idempotency keys per run to avoid test collisions.
+
 ## Provisioning Notes
 
 - Cloudflare resource inventory (KV, D1, R2, Queues, Vectorize) is tracked in:
