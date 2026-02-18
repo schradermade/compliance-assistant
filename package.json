@@ -11,6 +11,7 @@
     "test:integration:api-worker": "vitest run --config vitest.integration.api-worker.config.ts",
     "test:integration:queue-consumer": "vitest run --config vitest.integration.queue-consumer.config.ts",
     "test:integration": "pnpm run test:integration:api-worker && pnpm run test:integration:queue-consumer",
+    "test:e2e:staging": "vitest run --config vitest.e2e.staging.config.ts",
     "governance:check": "bash scripts/check-governance.sh",
     "preflight": "bash scripts/preflight.sh",
     "prepare": "husky",

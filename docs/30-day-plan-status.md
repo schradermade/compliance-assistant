@@ -21,8 +21,8 @@ Snapshot date: February 17, 2026
   - Done: `GET /metrics` contract and dashboard wiring are live.
   - Remaining: replace static metric payload with measured telemetry and cost accounting.
 - [ ] Day 10: Async ingestion with Queues
-  - Done: `/ingest` now publishes validated queue messages and `queue-consumer` validates, processes (`parse -> chunk -> embed -> index`), and acknowledges successful jobs.
-  - Remaining: add explicit dead-letter strategy and production retry/backoff policy documentation.
+  - Done: `/ingest` now publishes validated queue messages; `queue-consumer` validates and processes (`parse -> chunk -> embed -> index`) with ack/no-ack semantics; integration tests added for API Worker and queue consumer; staging E2E ingest smoke test added with non-prod safety guardrails.
+  - Remaining: add explicit dead-letter strategy and production retry/backoff policy documentation; add persistent downstream completion-state assertions in E2E.
 - [ ] Day 18: Identity-aware rate limiting
   - Done: Durable Object class and Worker binding are in place.
   - Remaining: enforce limiter keys by user + tenant + API key and emit block/anomaly events.
@@ -44,6 +44,7 @@ Snapshot date: February 17, 2026
 2. Day 10 implementation pass
    - [x] Wire `/ingest` to publish queue messages.
    - [x] Implement queue-consumer processing path with tenant-scoped guardrails.
+   - [x] Add integration and staging E2E smoke coverage for ingest path.
    - [ ] Add dead-letter handling strategy and retry/backoff controls.
 3. Day 2 local runtime verification
    - [ ] Run `pnpm run verify:day2-local-dev`.
