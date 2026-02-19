@@ -9,6 +9,7 @@ import {
   enforceTenantScope,
   requireAuthContext,
 } from "../lib/auth";
+import { enforceAccessJwt } from "../lib/access-jwt";
 import {
   createRequestId,
   jsonError,
@@ -60,6 +61,11 @@ export async function handleIngest(
   const auth = requireAuthContext(request, requestId);
   if (auth instanceof Response) {
     return auth;
+  }
+
+  const accessJwtError = await enforceAccessJwt(request, requestId, env, auth.email);
+  if (accessJwtError) {
+    return accessJwtError;
   }
 
   const roleError = enforceRoles(requestId, auth, [

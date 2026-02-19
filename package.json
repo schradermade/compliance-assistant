@@ -6,7 +6,7 @@
   "scripts": {
     "dev:api": "ts-node apps/api/src/server.ts",
     "test": "vitest run",
-    "test:authz": "vitest run apps/api-worker/src/lib/auth.test.ts apps/api-worker/src/lib/trace.test.ts",
+    "test:authz": "vitest run apps/api-worker/src/lib/auth.test.ts apps/api-worker/src/lib/trace.test.ts apps/api-worker/src/lib/access-jwt.test.ts",
     "test:ingest-queue": "vitest run apps/api-worker/src/routes/ingest.test.ts apps/queue-consumer/src/index.test.ts",
     "test:integration:api-worker": "vitest run --config vitest.integration.api-worker.config.ts",
     "test:integration:queue-consumer": "vitest run --config vitest.integration.queue-consumer.config.ts",
@@ -41,6 +41,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "hono": "^4.11.9",
+    "jose": "^5.9.6",
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

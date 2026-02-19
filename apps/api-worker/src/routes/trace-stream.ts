@@ -10,6 +10,7 @@ import {
   enforceTenantScope,
   requireAuthContext,
 } from "../lib/auth";
+import { enforceAccessJwt } from "../lib/access-jwt";
 import { createRequestId, jsonError } from "../lib/http";
 import type { RouteContext } from "../lib/route-context";
 
@@ -42,6 +43,11 @@ export async function handleTraceStream(
   const auth = requireAuthContext(request, requestId);
   if (auth instanceof Response) {
     return auth;
+  }
+
+  const accessJwtError = await enforceAccessJwt(request, requestId, _env, auth.email);
+  if (accessJwtError) {
+    return accessJwtError;
   }
 
   const roleError = enforceRoles(requestId, auth, [

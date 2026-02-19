@@ -14,6 +14,11 @@ import type { IngestQueueMessage } from '../../../packages/shared/src';
 export interface Env {
   INGEST_QUEUE: IngestQueueBinding;
   CACHE_KV: IdempotencyKvBinding;
+  ENV_NAME?: string;
+  REQUIRE_ACCESS_JWT?: string;
+  CF_ACCESS_AUD?: string;
+  CF_ACCESS_ISSUER?: string;
+  CF_ACCESS_JWKS_URL?: string;
 }
 
 interface IngestQueueBinding {

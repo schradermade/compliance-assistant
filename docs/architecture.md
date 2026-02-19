@@ -102,6 +102,7 @@ flowchart LR
 - API Worker uses `Hono` for route registration and not-found handling.
 - Route handlers remain in dedicated modules under `apps/api-worker/src/routes/`.
 - Request validation is performed at handler boundaries via `zod` schemas.
+- Protected routes validate Cloudflare Access JWT assertions (`cf-access-jwt-assertion`) against configured issuer/audience/JWKS before authorization logic.
 - This keeps routing concerns separate from validation and business logic.
 - Traceability endpoints for live UX visualization:
   - `GET /trace` for snapshot polling
